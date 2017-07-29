@@ -6,15 +6,19 @@ library(tidyverse)
 
 library(leaflet)
 
+###############################
+# Data Loading
+###############################
+
 town_data <- read_csv("data/town-locations.csv")
 town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
                                levels = rev(unique(town_data$SSR_NAME11))  # Not sure why this works, but it does...
                                )
 
+
 ###############################
 # ALGORITHMIC FUNCTIONS
 ###############################
-
 
 get_best_town <- function(inputs) {
     browser()
@@ -62,15 +66,14 @@ get_started <- function() {
             actionButton("devolveMe", "Devolve Me!")
         )
     )
-
 }
+
 
 # pass selected preferences to the algorithm. it returns a selected town,
 # and we move the move to it and update the pane with some info.
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
     location <- get_best_town(inputs)
-    #showModal(modalDialog(p(as.character(str(map)))))
     leafletProxy('map') %>%
         setView(lat = location$lat, lng = location$lon, zoom = 12)
     insertUI(
@@ -81,14 +84,12 @@ go_find_us <- function(inputs) {
             h4(paste("Welcome to", location$name)),
             p(paste0("We think ", location$name, " is ", location$score_total,
                      "% suitable for your department, because ",
-                     location$reason)
-            ),
+                     location$reason),
             p(location$description),
             actionButton("backToSelector", "< Back"),
             actionButton("exploreData", "Explore Data")
         )
     )
-
 }
 
 
@@ -96,10 +97,10 @@ go_find_us <- function(inputs) {
 map <- renderLeaflet({
     leaflet("map") %>%
         addTiles(
-            urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-            attribution = 'Maps by <a href = "http://www.mapbox.com/">Mapbox</a>'
+            urlTemplate = "http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
+            attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             ) %>%
-        setView(lng = 145.416667, lat = -28, zoom = 4) %>%
+        setView(lng = 149.1300, lat = -35.2809, zoom = 13) %>%
         addCircleMarkers(lng = town_data$X, lat = town_data$Y,
             radius = as.integer(town_data$SSR_NAME11) + 2,
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
