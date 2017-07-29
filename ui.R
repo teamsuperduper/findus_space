@@ -4,21 +4,30 @@ library(leaflet)
 get_started_pane <- absolutePanel(top = 140, right = 30, width = 340,
     id = "panel-intro", class = "panel-absolute panel-controls",
     h4("Time to get regional"),
-    p(paste("They say a change is as good as a holiday!",
-      "Well, I hope you like holidays",
-      "because your department has decided to relocate to regional Australia.",
-      "We’re here to help you make the best decision for your future.")),
-    p("It’s time to find your new home."),
-    actionButton("getStarted", "Get Started!")
+    p("They say change is as good as a holiday. Well, I hope you like holidays, because your employer has decided to relocate to regional Australia."),
+
+    p(a(href="http://findus.space", "findus.space")," is here to help you make the best decision for your future. Time to find your new home."),
+    actionButton("getStarted", "Get Started!"),
+
+    tags$ul(class = "pager",
+      tags$li(class = "next",
+        tags$a(href="#", id ="getStarted", "Get Started!")
+        ))
+
 )
 
 ui <- fluidPage(
   theme = "bootstrap.css",
   tags$head(
+            tags$title("findus.space > relocate your life #govhack 2017"),
             tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
             ),
-  headerPanel("FindUs.space", "FindUs.space: where should you send your government department next?"),
+  headerPanel(
+  img(src = "img/logo_BW_crop.png")
+  ),
   mainPanel(width = "100%",
+
+
             leafletOutput("map", height = "85vh")
             ),
   get_started_pane,
