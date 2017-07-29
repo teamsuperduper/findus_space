@@ -1,4 +1,4 @@
-# robojoyce: where should you relocate your government department?
+# FindUs.space: where should you relocate your government department?
 # created for govhack 2017
 
 library(shiny)
