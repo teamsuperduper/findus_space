@@ -22,12 +22,10 @@ ui <- fluidPage(
             tags$title("findus.space > relocate your life #govhack 2017"),
             tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
             ),
-  headerPanel(
-  img(src = "img/logo_BW_crop.svg", class="img-fluid float-left", style="height: 180px; width: 100% \\9;")
+  mainPanel(width = 12, style="padding-left: 0;",
+  img(src = "img/logo_BW_long_w.svg", class="img-fluid float-left", style="max-width: 90%;")
   ),
   mainPanel(width = "100%",
-
-
             leafletOutput("map", height = "85vh")
             ),
   get_started_pane,

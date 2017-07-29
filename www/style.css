@@ -11,3 +11,8 @@
   padding: 20px;
   border-radius: 10px
 }
+
+body {
+  margin: 0;
+  background-color: #000;
+}
