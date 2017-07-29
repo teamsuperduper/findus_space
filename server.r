@@ -14,6 +14,11 @@ town_data <- read_csv("data/town-locations.csv")
 town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
                                levels = rev(unique(town_data$SSR_NAME11))  # Not sure why this works, but it does...
                                )
+scores <-
+    left_join(town_data, read_csv('data/prefs-internet.csv'),
+        by = 'UCL_CODE11') %>%
+    left_join(., read_csv('data/prefs-centreofaus.csv'),
+        by = 'UCL_CODE11')
 
 
 ###############################
@@ -21,15 +26,22 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 ###############################
 
 get_best_town <- function(inputs) {
+    
+    result <- scores %>%
+        mutate(score_weighted = score_internet * inputs$prefs_netConnectivity +
+            score_centreofaus * inputs$prefs_centreofaus) %>%
+        arrange(score_weighted)
+    
     location <- list(
-        "name" = "Forster",
-        "lat" = -32.2337244,
-        "lon" = 152.4628833,
-        "score_internet" = 0.5,
-        "score_coast" = 0.5,
-        "score_total" = 42,
+        "name" = result$UCL_NAME11,
+        "lat" = result$Y,
+        "lon" = result$X,
+        "score_internet" = result$score_internet,
+        "score_coast" = result$score_centreofaus,
+        "score_total" = result$score_total,
         "reason" = "it's near the beach, stupid.",
-        "description" = "Forster has lots of beaches and old people.")
+        "description" = paste(
+            result$UCL_NAME11, "has lots of beaches and old people."))
 
     return(location)
 }
@@ -54,8 +66,8 @@ get_started <- function() {
                 "How important is Internet access?",
                 min = 0, max = 10, value = 5),
             sliderInput(
-                "prefs_coast",
-                "How important is being on the coast?",
+                "prefs_centreofaus",
+                "How important is being close to the centre of Australia?",
                 min = 0, max = 10, value = 5),
             checkboxGroupInput(
                 "prefs_specialNeeds",

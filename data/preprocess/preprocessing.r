@@ -54,8 +54,7 @@ process_internet = function()
   result = result %>%
     select(UCL_CODE11, score_internet)
 
-  # write_csv(result, 'prefs-internet.csv')
-  return(result)
+  write_csv(result, '../prefs-internet.csv')
 }
 
 process_centreofaus = function()
@@ -67,15 +66,6 @@ process_centreofaus = function()
       HubDist = col_double()))
   input$score_centreofaus = remap_scores(input$HubDist,
     from = 1, to = 0)
-  return(input %>% select(UCL_CODE11, score_centreofaus))
-}
-
-# now we combine all of the individual scores into one data frame
-combine_scores = function()
-{
-  # pre-process, tidy and normalise data into scores
-  score.internet = process_internet()
-  score.centreofus = process_centreofaus()
-
-  # join 'em up
+  result = input %>% select(UCL_CODE11, score_centreofaus)
+  write_csv(result, '../prefs-centreofaus.csv')
 }
