@@ -28,9 +28,9 @@ function(input, output, session) {
                urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
                attribution = 'Maps by <a href = "http://www.mapbox.com/">Mapbox</a>'
                ) %>%
-    setView(lng = 145.416667, lat = -24.25, zoom = 5) %>%
+    setView(lng = 145.416667, lat = -28, zoom = 4) %>%
     addCircleMarkers(lng = town_data$X, lat = town_data$Y,
-                     radius = as.integer(town_data$SSR_NAME11),
+                     radius = as.integer(town_data$SSR_NAME11) + 2,
                      color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
                      fillColor = "#8be")
 
