@@ -19,6 +19,7 @@ get_started_pane <- absolutePanel(top = 140, right = 30, width = 340,
 ui <- fluidPage(
   theme = "bootstrap.css",
   tags$head(
+            tags$title("findus.space > relocate your life #govhack 2017"),
             tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
             ),
   headerPanel(
