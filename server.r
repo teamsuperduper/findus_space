@@ -21,9 +21,7 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 ###############################
 
 get_best_town <- function(inputs) {
-    browser()
-
-    return(list(
+    location <- list(
         "name" = "Forster",
         "lat" = -32.2337244,
         "lon" = 152.4628833,
@@ -31,7 +29,9 @@ get_best_town <- function(inputs) {
         "score_coast" = 0.5,
         "score_total" = 42,
         "reason" = "it's near the beach, stupid.",
-        "description" = "Forster has lots of beaches and old people."))
+        "description" = "Forster has lots of beaches and old people.")
+
+    return(location)
 }
 
 
@@ -81,10 +81,10 @@ go_find_us <- function(inputs) {
         where = "beforeBegin",
         ui = absolutePanel(top = 140, right = 30, width = 340,
             id = "panel-destination", class = "panel-absolute panel-controls",
-            h4(paste("Welcome to", location$name)),
-            p(paste0("We think ", location$name, " is ", location$score_total,
-                     "% suitable for your department, because ",
-                     location$reason),
+            h4("Welcome to", location$name),
+            p("We think ", location$name, " is ", location$score_total,
+              "% suitable for your department, because ",
+              location$reason),
             p(location$description),
             actionButton("backToSelector", "< Back"),
             actionButton("exploreData", "Explore Data")
