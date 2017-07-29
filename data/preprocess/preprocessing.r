@@ -48,9 +48,10 @@ process_internet = function()
     select(SA2_MAIN16, fraction_with_internet)
 
   # join the two frames so we have a list of towns and internet scores
-  result = inner_join(towns, input, by = 'SA2_MAIN16') %>%
-    select(UCL_CODE11, UCL_NAME11, fraction_with_internet)
+  result = inner_join(towns, input, by = 'SA2_MAIN16')
   result$score_internet = remap_scores(result$fraction_with_internet,
     from = 0, to = 1)
+  result = result %>%
+    select(UCL_CODE11, UCL_NAME11, fraction_with_internet)
   write_csv(result, 'prefs-internet.csv')
 }
