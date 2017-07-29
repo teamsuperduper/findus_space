@@ -104,7 +104,7 @@ map <- renderLeaflet({
         addCircleMarkers(lng = town_data$X, lat = town_data$Y,
             radius = as.integer(town_data$SSR_NAME11) + 2,
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
-            fillColor = "#8be")
+            fillColor = "#f2c94c")
 })
 
 
