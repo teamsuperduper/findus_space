@@ -54,7 +54,8 @@ get_started <- function() {
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
     location <- get_best_town(inputs)
-    # TODO: Zoom to
+    #showModal(modalDialog(p(as.character(str(map)))))
+    leafletProxy('map') %>% setView(lat = location$lat, lng = location$lon, zoom = 12)
     insertUI(
         selector = "#author",
         where = "beforeBegin",
