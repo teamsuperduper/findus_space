@@ -1,0 +1,13 @@
+#map {
+  height: calc(100vh - 150px) !important;
+}
+
+#author {
+  text-align: right;
+}
+
+.panel-absolute {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px
+}
