@@ -23,7 +23,7 @@ ui <- fluidPage(
             tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
             ),
   headerPanel(
-  img(src = "img/logo_BW_crop.png")
+  img(src = "img/logo_BW_crop.svg", class="img-fluid float-left", style="height: 180px; width: 100% \\9;")
   ),
   mainPanel(width = "100%",
 
