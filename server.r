@@ -77,11 +77,10 @@ go_find_us <- function(inputs) {
         where = "beforeBegin",
         ui = absolutePanel(top = 140, right = 30, width = 340,
             id = "panel-destination", class = "panel-absolute panel-controls",
-            h4(paste("Welcome to", location$name)),
-            p(paste0("We think ", location$name, " is ", location$fit,
+            h4("Welcome to", location$name),
+            p("We think ", location$name, " is ", location$fit,
                      "% suitable for your department, because ",
-                     location$reason)
-            ),
+                     location$reason),
             p(location$description),
             actionButton("backToSelector", "< Back"),
             actionButton("exploreData", "Explore Data")
