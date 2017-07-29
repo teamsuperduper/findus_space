@@ -92,8 +92,8 @@ go_find_us <- function(inputs) {
 map <- renderLeaflet({
     leaflet("map") %>%
         addTiles(
-            urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-            attribution = 'Maps by <a href = "http://www.mapbox.com/">Mapbox</a>'
+            urlTemplate = "http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png",
+            attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             ) %>%
         setView(lng = 145.416667, lat = -28, zoom = 4) %>%
         addCircleMarkers(lng = town_data$X, lat = town_data$Y,
