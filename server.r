@@ -96,7 +96,7 @@ map <- renderLeaflet({
             urlTemplate = "http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
             attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             ) %>%
-        setView(lng = 145.416667, lat = -28, zoom = 4) %>%
+        setView(lng = 149.1300, lat = -35.2809, zoom = 13) %>%
         addCircleMarkers(lng = town_data$X, lat = town_data$Y,
             radius = as.integer(town_data$SSR_NAME11) + 2,
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
