@@ -18,15 +18,16 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 
 get_best_town <- function(inputs) {
     browser()
-    location <- list(
+
+    return(list(
         "name" = "Forster",
         "lat" = -32.2337244,
         "lon" = 152.4628833,
-        "fit" = 42,
+        "score_internet" = 0.5,
+        "score_coast" = 0.5,
+        "score_total" = 42,
         "reason" = "it's near the beach, stupid.",
-        "description" = "Forster has lots of beaches and old people.")
-
-    return(location)
+        "description" = "Forster has lots of beaches and old people."))
 }
 
 
@@ -46,14 +47,17 @@ get_started <- function() {
             p("Use the controls to select what matters to you."),
             sliderInput(
                 "prefs_netConnectivity",
-                "How important is Internet Connectivity to you?",
+                "How important is Internet access?",
+                min = 0, max = 10, value = 5),
+            sliderInput(
+                "prefs_coast",
+                "How important is being on the coast?",
                 min = 0, max = 10, value = 5),
             checkboxGroupInput(
                 "prefs_specialNeeds",
                 "Special requirements?",
                 choices = c(
-                    "Low cost of living" = "livingCost",
-                    "Near the coast" = "coastal")),
+                    "Low cost of living" = "livingCost")),
             # this button calls the algorithm to find a place: go_find_us
             actionButton("devolveMe", "Devolve Me!")
         )
@@ -75,7 +79,7 @@ go_find_us <- function(inputs) {
         ui = absolutePanel(top = 140, right = 30, width = 340,
             id = "panel-destination", class = "panel-absolute panel-controls",
             h4(paste("Welcome to", location$name)),
-            p(paste0("We think ", location$name, " is ", location$fit,
+            p(paste0("We think ", location$name, " is ", location$score_total,
                      "% suitable for your department, because ",
                      location$reason)
             ),

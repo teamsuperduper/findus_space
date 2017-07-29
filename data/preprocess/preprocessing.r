@@ -52,6 +52,30 @@ process_internet = function()
   result$score_internet = remap_scores(result$fraction_with_internet,
     from = 0, to = 1)
   result = result %>%
-    select(UCL_CODE11, UCL_NAME11, fraction_with_internet)
-  write_csv(result, 'prefs-internet.csv')
+    select(UCL_CODE11, score_internet)
+
+  # write_csv(result, 'prefs-internet.csv')
+  return(result)
+}
+
+process_centreofaus = function()
+{
+  input = read_csv('gis-distance-centreofaus.csv',
+    col_types = cols(
+      .default = col_character(),
+      UCL_CODE11 = col_integer(),
+      HubDist = col_double()))
+  input$score_centreofaus = remap_scores(input$HubDist,
+    from = 1, to = 0)
+  return(input %>% select(UCL_CODE11, score_centreofaus))
+}
+
+# now we combine all of the individual scores into one data frame
+combine_scores = function()
+{
+  # pre-process, tidy and normalise data into scores
+  score.internet = process_internet()
+  score.centreofus = process_centreofaus()
+
+  # join 'em up
 }
