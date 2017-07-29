@@ -11,8 +11,13 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
                                levels = rev(unique(town_data$SSR_NAME11))  # Not sure why this works, but it does...
                                )
 
+###############################
+# ALGORITHMIC FUNCTIONS
+###############################
+
 
 get_best_town <- function(inputs) {
+    browser()
     location <- list(
         "name" = "Forster",
         "lat" = -32.2337244,
@@ -29,6 +34,7 @@ get_best_town <- function(inputs) {
 # SERVER FUNCTIONS
 ###############################
 
+# this panel has the sliders corresponding to our dataset inputs
 get_started <- function() {
     removeUI(selector = ".panel-controls")
     insertUI(
@@ -38,24 +44,31 @@ get_started <- function() {
             id = "panel-options", class = "panel-absolute panel-controls",
             h4("What's in a move?"),
             p("Use the controls to select what matters to you."),
-            sliderInput("netConnectivity", "How important is Internet Connectivity to you?",
-                        min = 0, max = 10, value = 5),
-            checkboxGroupInput("specialNeeds", "Special requirements?",
-                               choices = c(
-                                  "Low cost of living" = "livingCost",
-                                  "Near the coast" = "coastal")
-                               ),
+            sliderInput(
+                "prefs_netConnectivity",
+                "How important is Internet Connectivity to you?",
+                min = 0, max = 10, value = 5),
+            checkboxGroupInput(
+                "prefs_specialNeeds",
+                "Special requirements?",
+                choices = c(
+                    "Low cost of living" = "livingCost",
+                    "Near the coast" = "coastal")),
+            # this button calls the algorithm to find a place: go_find_us
             actionButton("devolveMe", "Devolve Me!")
         )
     )
 
 }
 
+# pass selected preferences to the algorithm. it returns a selected town,
+# and we move the move to it and update the pane with some info.
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
     location <- get_best_town(inputs)
     #showModal(modalDialog(p(as.character(str(map)))))
-    leafletProxy('map') %>% setView(lat = location$lat, lng = location$lon, zoom = 12)
+    leafletProxy('map') %>%
+        setView(lat = location$lat, lng = location$lon, zoom = 12)
     insertUI(
         selector = "#author",
         where = "beforeBegin",
@@ -98,6 +111,6 @@ server <- function(input, output, session) {
   output$map <- map
 
   observeEvent(input$getStarted, get_started())
-  observeEvent(input$devolveMe, go_find_us())
+  observeEvent(input$devolveMe, go_find_us(input))
   observeEvent(input$backToSelector, get_started())
 }
