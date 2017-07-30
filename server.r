@@ -122,14 +122,14 @@ get_started <- function() {
                "),
             id = "panel-options", class = "panel-absolute panel-controls",
             h4("What's in a move?"),
-            p(class="text-muted", "Use the controls to tell us what matters to you."),
-            sliderInput(
-                "prefs_netConnectivity",
-                "How important is fast internet?",
-                min = 0, max = 1, value = 0.5, step = 0.25),
+            p(class="text-muted", "Tell us what matters to you."),
             sliderInput(
                 "prefs_coast",
                 "How close to the coast would you like to be?",
+                min = 0, max = 1, value = 0.5, step = 0.25),
+            sliderInput(
+                "prefs_netConnectivity",
+                "How important is fast internet?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
             sliderInput(
                 "prefs_lowRent",
