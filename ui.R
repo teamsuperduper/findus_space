@@ -1,7 +1,7 @@
 library(shiny)
 library(leaflet)
 
-get_started_pane <- absolutePanel(top = 160, right = 30, width = 340,
+get_started_pane <- absolutePanel(
     id = "panel-intro", class = "panel-absolute panel-controls",
     h4("Get out of town"),
     p("They say change is as good as a holiday. Well, I hope you like holidays,
