@@ -97,15 +97,33 @@ get_started <- function() {
 }
 
 
+update_map <- function(location, all_scores) {
+    map_proxy <- leafletProxy("map")
+    map_proxy %>% setView(lat = location$lat, lng = location$lon, zoom = 12)
+
+    palette <- colorNumeric(palette = c("#f2c94c", "#ffc61c"), domain = range(all_scores))
+
+    map_proxy %>% removeMarker(layerId = "town_points")
+    map_proxy %>% addCircleMarkers(layerId = "town_points",
+        lng = town_data$X, lat = town_data$Y,
+        radius = as.integer(town_data$SSR_NAME11) + 2,
+        color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
+        fillColor = palette(all_scores))
+}
+
+
 # pass selected preferences to the algorithm. it returns a selected town,
 # and we move the move to it and update the pane with some info.
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
+
     results <- get_best_town(inputs)
     location <- results$location
     all_scores <- results$all_scores
-    leafletProxy('map') %>%
-        setView(lat = location$lat, lng = location$lon, zoom = 12)
+
+    # Recenter map
+    update_map(location, all_scores)
+
     insertUI(
         selector = "#author",
         where = "beforeBegin",
@@ -131,11 +149,14 @@ map <- renderLeaflet({
             urlTemplate = "http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
             attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             ) %>%
-        setView(lng = 149.1300, lat = -35.2809, zoom = 13) %>%
-        addCircleMarkers(lng = town_data$X, lat = town_data$Y,
+        setView(lng = 149.1300, lat = -35.2809, zoom = 11) %>%
+        addCircleMarkers(
+            lng = town_data$X, lat = town_data$Y,
             radius = as.integer(town_data$SSR_NAME11) + 2,
+            layerId = "town_points",
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
-            fillColor = "#f2c94c")
+            fillColor = "#f2c94c"
+        )
 })
 
 
