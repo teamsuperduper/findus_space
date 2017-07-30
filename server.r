@@ -64,29 +64,26 @@ get_best_town <- function(inputs) {
                 (score_votes * inputs$prefs_swing) +
             )
 
-        bestish_town <- results %>%
-            top_n(15, score_weighted) %>%   # grab top n scoring towns
-            arrange(-score_weighted) %>%
-            sample_n(1)                     # randomise the top result
+     bestish_town <- results %>%
+        top_n(15, score_weighted) %>%   # grab top n scoring towns
+        arrange(-score_weighted) %>%
+        sample_n(1)                     # randomise the top result
 
-        name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
+    name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
 
-        location <- list(
-            "id" = bestish_town$UCL_NAME11[1],
-            "name" = name,
-            "lat" = bestish_town$Y[1],
-            "lon" = bestish_town$X[1],
-            "score_internet" = bestish_town$score_internet[1],
-            "score_coast" = bestish_town$score_coast[1],
-            "score_rent" = bestish_town$score_rent[1],
-            "score_votes" = bestish_town$score_votes[1],
-            "score_total" = bestish_town$score_weighted[1],
-            "reason" = "it's near the beach, stupid.",
-            "description" = paste(name, "has lots of beaches and old people.")
-        )
-
-        return(list(location = location, all_scores = results$score_weighted))
+    location <- list(
+        "id" = bestish_town$UCL_NAME11[1],
+        "name" = name,
+        "lat" = bestish_town$Y[1],
+        "lon" = bestish_town$X[1],
+        "score_internet" = bestish_town$score_internet[1],
+        "score_coast" = bestish_town$score_coast[1],
+        "score_total" = bestish_town$score_weighted[1],
+        "reason" = "it most closely aligns to your requirements.",
+        "description" = paste(name, "is going to be a great fit! It's near the coast, has fast internet and reasonable house prices."))
     }
+
+    return(list(location = location, all_scores = results$score_weighted))
 }
 
 ###############################
@@ -179,7 +176,7 @@ go_find_us <- function(inputs) {
         ui = absolutePanel(
             id = "panel-destination", class = "panel-absolute panel-controls",
             h4("Welcome to", location$name),
-            p(paste0("We think ", location$name, ", with a score of ",
+            p(paste0("We've crunched all the data and think ", location$name, ", with a findus.space score of ",
                 format(location$score_total * 100, digits = 2),
                 " and a population of ", location$SSR_NAME11,
                 ", is suitable for your department, because ",
