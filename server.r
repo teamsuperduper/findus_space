@@ -45,7 +45,7 @@ get_best_town <- function(inputs) {
         results <- result %>%
             mutate(score_weighted =
                 score_weighted + score_votes * 10)
-    }     
+    }
 
     # if barnaby box is checked, just return armidale
     if(
@@ -92,7 +92,7 @@ get_best_town <- function(inputs) {
             "score_total" = bestish_town$score_weighted[1],
             "population" = bestish_town$SSR_NAME11[1],
             "reason" = "it most closely aligns to your requirements.",
-            "description" = paste(name, "is going to be a great fit! It's near the coast, has fast internet and reasonable house prices."))
+            "description" = paste(name, "is going to be a great fit!"))
     }
 
     return(list(location = location, all_scores = results$score_weighted))
@@ -125,7 +125,7 @@ get_started <- function() {
             p(class="text-muted", "Use the controls to tell us what matters to you."),
             sliderInput(
                 "prefs_netConnectivity",
-                "How important is Internet access?",
+                "How important is fast internet?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
             sliderInput(
                 "prefs_coast",
@@ -133,14 +133,15 @@ get_started <- function() {
                 min = 0, max = 1, value = 0.5, step = 0.25),
             sliderInput(
                 "prefs_lowRent",
-                "How important is low rent to you?",
+                "How important is low rent?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
             checkboxGroupInput(
                 "prefs_specialNeeds",
                 "Any special requirements?",
                 choices = c(
-                    "Low cost of living 🏡️" = "livingCost",
-                    "Big swing in the local electorate 😈" = "swing",
+                    "Good schools nearby 🎒" = "livingCost",
+                    "Easy access to childcare 👶" = "livingCost",
+                    "Big swing last election 😈" = "swing",
                     "I'm Barnaby Joyce 🤠" = "barnaby")),
             # this button calls the algorithm to find a place: go_find_us
             actionButton("devolveMe", "Relocate Me!")
@@ -186,7 +187,7 @@ go_find_us <- function(inputs) {
             p(paste0("We've crunched all the data and think ", location$name, ", ", location$state, ", with a findus.space score of ",
                 format(location$score_total * 100, digits = 2),
                 " and a population of ", location$population,
-                ", is suitable for your department, because ",
+                ", is most suitable for you, because ",
                 location$reason)),
             p(location$description),
             actionButton("backToSelector", "< Back"),
