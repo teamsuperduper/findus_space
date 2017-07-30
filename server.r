@@ -101,11 +101,13 @@ update_map <- function(location, all_scores) {
     map_proxy <- leafletProxy("map")
     map_proxy %>% setView(lat = location$lat, lng = location$lon, zoom = 12)
 
-    palette <- colorNumeric(palette = c("#f2c94c", "#ffc61c"), domain = range(all_scores))
+    palette <- colorNumeric(palette = c("#544412", "#ffcd36"),
+                            domain = range(all_scores, na.rm=TRUE))
+                            print(range(all_scores, na.rm=TRUE))
 
-    map_proxy %>% removeMarker(layerId = "town_points")
-    map_proxy %>% addCircleMarkers(layerId = "town_points",
+    map_proxy %>% addCircleMarkers(
         lng = town_data$X, lat = town_data$Y,
+        layerId = town_data$UCL_CODE11,
         radius = as.integer(town_data$SSR_NAME11) + 2,
         color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
         fillColor = palette(all_scores))
@@ -152,8 +154,8 @@ map <- renderLeaflet({
         setView(lng = 149.1300, lat = -35.2809, zoom = 11) %>%
         addCircleMarkers(
             lng = town_data$X, lat = town_data$Y,
+            layerId = town_data$UCL_CODE11,
             radius = as.integer(town_data$SSR_NAME11) + 2,
-            layerId = "town_points",
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
             fillColor = "#f2c94c"
         )
