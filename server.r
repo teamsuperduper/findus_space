@@ -33,11 +33,20 @@ get_best_town <- function(inputs) {
 
     # calculate the weighted score
     results <- scores %>%
+        mutate()
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
             (1 - abs(score_coast - inputs$prefs_coast)) +
-            (score_rent * inputs$prefs_lowRent) +
-            (score_votes * inputs$prefs_swing))
+            (score_rent * inputs$prefs_lowRent)
+
+    # bump score with swing amount if swing checkbox is checked
+    if (!is.null(inputs$prefs_specialNeeds) &
+        any(grepl('barnaby', inputs$swing)))
+    {
+        results <- result %>%
+            mutate(score_weighted =
+                score_weighted + score_votes * 10)
+    }     
 
     if(
         !is.null(inputs$prefs_specialNeeds) &
@@ -127,17 +136,12 @@ get_started <- function() {
                 "prefs_lowRent",
                 "How important is low rent to you?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
-            sliderInput(
-                "prefs_swing",
-                "How important is a large swing last election?",
-                min = 0, max = 1, value = 0.5, step = 0.25),
             checkboxGroupInput(
                 "prefs_specialNeeds",
                 "Any special requirements?",
                 choices = c(
                     "Low cost of living 🏡️" = "livingCost",
-                    "Easy access to childcare 👶" = "childcare",
-                    "Good schools nearby 🎒" = "schools",
+                    "Big swing in the local electorate 😈" = "swing",
                     "I'm Barnaby Joyce 🤠" = "barnaby")),
             # this button calls the algorithm to find a place: go_find_us
             actionButton("devolveMe", "Relocate Me!")
