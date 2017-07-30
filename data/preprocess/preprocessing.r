@@ -4,9 +4,10 @@ library(tidyverse)
 # (for comparing different calculated factors)
 remap_scores = function(scores, from = 0, to = 1)
 {
+    
     return(
-        (scores - min(scores)) /
-        max(scores - min(scores)) *
+        (scores - min(scores, na.rm = TRUE)) /
+        max(scores - min(scores, na.rm = TRUE), na.rm = TRUE) *
         (to - from) + from)
 }
 
@@ -81,4 +82,45 @@ process_coast = function()
   input = input %>% select(InputID, Distance)
   names(input) = c('UCL_CODE11', 'score_coast')
   write_csv(input, '../prefs-coast.csv')
+}
+
+
+process_votes = function()
+{
+  towns = read_csv('../town-locations.csv',
+    col_types = cols(
+      .default = col_character(),
+      X = col_double(),
+      Y = col_double(),
+      UCL_CODE11 = col_character(),
+      SSR_CODE11 = col_integer(),
+      SOS_CODE11 = col_integer(),
+      STE_CODE11 = col_integer(),
+      AREA_SQKM = col_double(),
+      Elect_div = col_character()))
+  
+  input = read_csv('aec-votes-by-division-2016.csv',
+    col_types = cols(
+      .default = col_character(),
+      Swing = col_double()))
+
+  print(nrow(input))
+
+  input = input %>%
+    rename(Elect_div = DivisionNm) %>%
+    select(Elect_div, Swing)
+  
+  # can't use remap_scores for this because it's pos and neg,
+  # and it needs to stay centred around zero!
+  # instead, divide everything by the largest absolute value in the set
+  input$score_votes = abs(input$Swing /
+    max(
+      abs(max(input$Swing, na.rm = TRUE)),
+      abs(min(input$Swing, na.rm = TRUE))))
+  
+
+  result = inner_join(towns, input, by = 'Elect_div') %>%
+    select(UCL_CODE11, score_votes)
+
+  write_csv(result, '../prefs-votes.csv')
 }
