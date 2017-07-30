@@ -76,7 +76,7 @@ process_coast = function()
     col_types = cols(
       .default = col_integer(),
       Distance = col_double()))
-  input$Distance = remap_scores(input$Distance,
+  input$Distance = remap_scores(input$Distance ** (1/3),  # less coastal bias
     from = 1, to = 0)
   input = input %>% select(InputID, Distance)
   names(input) = c('UCL_CODE11', 'score_coast')
