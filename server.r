@@ -33,11 +33,10 @@ get_best_town <- function(inputs) {
 
     # calculate the weighted score
     results <- scores %>%
-        mutate()
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
             (1 - abs(score_coast - inputs$prefs_coast)) +
-            (score_rent * inputs$prefs_lowRent)
+            (score_rent * inputs$prefs_lowRent))
 
     # bump score with swing amount if swing checkbox is checked
     if (!is.null(inputs$prefs_specialNeeds) &
@@ -48,11 +47,11 @@ get_best_town <- function(inputs) {
                 score_weighted + score_votes * 10)
     }     
 
+    # if barnaby box is checked, just return armidale
     if(
         !is.null(inputs$prefs_specialNeeds) &
         any(grepl('barnaby', inputs$prefs_specialNeeds)))
     {
-        # if barnaby box is checked, just return armidale
         armidale = scores %>% filter(UCL_NAME11 == 'Armidale')
         name <- gsub(" \\(.*", "", armidale$UCL_NAME11[1])
 
