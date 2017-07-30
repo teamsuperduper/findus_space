@@ -30,5 +30,5 @@ ui <- fluidPage(
             leafletOutput("map", height = "82vh")
             ),
   get_started_pane,
-  p("by teamsuperduper", id = "author")
+  p("by teamsuperduper using leafletjs.com, a JS library for interactive maps. Map tiles by Stamen Design (stamen.com) CC BY 3.0. Map data © OpenStreetMap (openstreetmap.org/copyright).", id = "author")
 )

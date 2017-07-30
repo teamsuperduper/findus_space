@@ -225,7 +225,7 @@ check_map_click <- function(map_click) {
 
 # Create the map
 map <- renderLeaflet({
-    leaflet("map") %>%
+    leaflet("map", options = leafletOptions(attributionControl = FALSE)) %>%
         addTiles(
             urlTemplate = "http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
             attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
