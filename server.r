@@ -31,32 +31,27 @@ print(head(scores))
 
 get_best_town <- function(inputs) {
     
+    # calculated the weighted score
     result <- scores %>%
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
-            # (1 - abs(score_centreofaus - inputs$prefs_centreofaus)) +
-            (score_coast * inputs$prefs_coast)
+            (1 - abs(score_coast - inputs$prefs_coast))
             ) %>%
-        arrange(score_weighted)
-
-    print(head(result))
-    
+        top_n(15, score_weighted) %>%    # grab top n scoring towns
+        arrange(-score_weighted) %>%
+        sample_n(1)                     # randomise the top result
     location <- list(
         "name" = result$UCL_NAME11[1],
         "lat" = result$Y[1],
         "lon" = result$X[1],
         "score_internet" = result$score_internet[1],
-        "score_coast" = result$score_centreofaus[1],
+        "score_coast" = result$score_coast[1],
         "score_total" = result$score_weighted[1],
         "reason" = "it's near the beach, stupid.",
         "description" = paste(
             result$UCL_NAME11[1], "has lots of beaches and old people."))
-    
-    print(location)
-
     return(location)
 }
-
 
 ###############################
 # SERVER FUNCTIONS
