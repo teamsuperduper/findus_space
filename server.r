@@ -17,6 +17,8 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 scores <-
     left_join(town_data, read_csv("data/prefs-internet.csv"),
         by = "UCL_CODE11") %>%
+    left_join(town_data, read_csv("data/prefs-rent.csv"),
+            by = "UCL_CODE11") %>%
     # left_join(., read_csv("data/prefs-centreofaus.csv"),
     #     by = "UCL_CODE11") %>%
     left_join(., read_csv("data/prefs-coast.csv"),
@@ -43,14 +45,17 @@ get_best_town <- function(inputs) {
         sample_n(1)                     # randomise the top result
 
     name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
+    state <- gsub(" \\(.*", "", bestish_town$STE_NAME11[1])
 
     location <- list(
         "id" = bestish_town$UCL_NAME11[1],
         "name" = name,
+        "state" = state,
         "lat" = bestish_town$Y[1],
         "lon" = bestish_town$X[1],
         "score_internet" = bestish_town$score_internet[1],
         "score_coast" = bestish_town$score_coast[1],
+        "score_rent" = bestish_town$score_rent[1],
         "score_total" = bestish_town$score_weighted[1],
         "reason" = "it most closely aligns to your requirements.",
         "description" = paste(name, "is going to be a great fit! It's near the coast, has fast internet and reasonable house prices.")
@@ -145,7 +150,7 @@ go_find_us <- function(inputs) {
         ui = absolutePanel(
             id = "panel-destination", class = "panel-absolute panel-controls",
             h4("Welcome to", location$name),
-            p(paste0("We've crunched all the data and think ", location$name, ", with a findus.space score of ",
+            p(paste0("We've crunched all the data and think ", location$name, ", ", location$state, ", with a findus.space score of ",
                 format(location$score_total * 100, digits = 2),
                 ", is the perfect fit because ",
                 location$reason)),
