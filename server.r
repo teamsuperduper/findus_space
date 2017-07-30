@@ -20,9 +20,7 @@ scores <-
     # left_join(., read_csv('data/prefs-centreofaus.csv'),
     #     by = 'UCL_CODE11') %>%
     left_join(., read_csv('data/prefs-coast.csv'),
-        by = 'UCL_CODE11') %>%
-
-print(head(scores))
+        by = 'UCL_CODE11')
 
 
 ###############################
@@ -32,26 +30,33 @@ print(head(scores))
 get_best_town <- function(inputs) {
 
     # calculated the weighted score
-    result <- scores %>%
+    results <- scores %>%
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
             # TODO - nearly everyone's coast score is 0.9–1; maybe dial it down?
             (1 - abs(score_coast - inputs$prefs_coast))
-            ) %>%
-        top_n(15, score_weighted) %>%    # grab top n scoring towns
+        )
+
+     bestish_town <- results %>%
+        top_n(15, score_weighted) %>%   # grab top n scoring towns
         arrange(-score_weighted) %>%
         sample_n(1)                     # randomise the top result
+
+    name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
+
     location <- list(
-        "name" = result$UCL_NAME11[1],
-        "lat" = result$Y[1],
-        "lon" = result$X[1],
-        "score_internet" = result$score_internet[1],
-        "score_coast" = result$score_coast[1],
-        "score_total" = result$score_weighted[1],
+        "id" = bestish_town$UCL_NAME11[1],
+        "name" = name,
+        "lat" = bestish_town$Y[1],
+        "lon" = bestish_town$X[1],
+        "score_internet" = bestish_town$score_internet[1],
+        "score_coast" = bestish_town$score_coast[1],
+        "score_total" = bestish_town$score_weighted[1],
         "reason" = "it's near the beach, stupid.",
-        "description" = paste(
-            result$UCL_NAME11[1], "has lots of beaches and old people."))
-    return(location)
+        "description" = paste(name, "has lots of beaches and old people.")
+    )
+
+    return(list(location = location, all_scores = results$score_weighted))
 }
 
 ###############################
@@ -105,15 +110,36 @@ get_started <- function() {
     )
 }
 
+
+update_map <- function(location, all_scores) {
+    map_proxy <- leafletProxy("map")
+    map_proxy %>% setView(lat = location$lat, lng = location$lon, zoom = 12)
+
+    palette <- colorNumeric(palette = c("#544412", "#ffcd36"),
+                            domain = range(all_scores, na.rm=TRUE))
+                            print(range(all_scores, na.rm=TRUE))
+
+    map_proxy %>% addCircleMarkers(
+        lng = town_data$X, lat = town_data$Y,
+        layerId = town_data$UCL_CODE11,
+        radius = as.integer(town_data$SSR_NAME11) + 2,
+        color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
+        fillColor = palette(all_scores))
+}
+
+
 # pass selected preferences to the algorithm. it returns a selected town,
 # and we move the move to it and update the pane with some info.
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
+
     results <- get_best_town(inputs)
-    location <- results[1]
-    all_scores <- results[2]
-    leafletProxy('map') %>%
-        setView(lat = location$lat, lng = location$lon, zoom = 12)
+    location <- results$location
+    all_scores <- results$all_scores
+
+    # Recenter map
+    update_map(location, all_scores)
+
     insertUI(
         selector = "#author",
         where = "beforeBegin",
@@ -139,11 +165,14 @@ map <- renderLeaflet({
             urlTemplate = "http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
             attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             ) %>%
-        setView(lng = 149.1300, lat = -35.2809, zoom = 13) %>%
-        addCircleMarkers(lng = town_data$X, lat = town_data$Y,
+        setView(lng = 149.1300, lat = -35.2809, zoom = 11) %>%
+        addCircleMarkers(
+            lng = town_data$X, lat = town_data$Y,
+            layerId = town_data$UCL_CODE11,
             radius = as.integer(town_data$SSR_NAME11) + 2,
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
-            fillColor = "#f2c94c")
+            fillColor = "#f2c94c"
+        )
 })
 
 
