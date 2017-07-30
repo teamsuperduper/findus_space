@@ -18,7 +18,7 @@ scores <-
     left_join(town_data, read_csv("data/prefs-internet.csv"),
         by = "UCL_CODE11") %>%
     left_join(., read_csv("data/prefs-rent.csv"),
-            by = "UCL_CODE11") %>%
+        by = "UCL_CODE11") %>%
     # left_join(., read_csv("data/prefs-centreofaus.csv"),
     #     by = "UCL_CODE11") %>%
     left_join(., read_csv("data/prefs-coast.csv"),
