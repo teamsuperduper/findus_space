@@ -31,20 +31,35 @@ scores <-
 
 get_best_town <- function(inputs) {
 
-    # calculate the weighted score
+    weights <- c("net" = inputs$prefs_netConnectivity,
+                 "coast" = inputs$prefs_coast,
+                 "rent" = inputs$prefs_lowRent)
+
+    if (!is.null(inputs$prefs_specialNeeds)) {
+        # Add 1 for check boxes, except Barnaby
+        specialNeeds <- c("goodSchools", "childCare", "swing")
+        for (sn in specialNeeds) {
+            if (sn %in% inputs$prefs_specialNeeds) {
+                weights[sn] <- 1
+            }
+        }
+    }
+
+    # normalise weights
+    weights <- weights / sum (weights)
+
     results <- scores %>%
         mutate(score_weighted =
-            (score_internet * inputs$prefs_netConnectivity) +
-            (1 - abs(score_coast - inputs$prefs_coast)) +
-            (score_rent * inputs$prefs_lowRent))
+            (score_internet * weights["net"]) +
+            (score_coast * weights["coast"]) +
+            (score_rent * weights["rent"])
+        )
+    # TODO: Add in weights for schools/childcare? values, somehow?
 
     # bump score with swing amount if swing checkbox is checked
-    if (!is.null(inputs$prefs_specialNeeds) &
-        any(grepl('barnaby', inputs$swing)))
-    {
+    if (!is.null(inputs$prefs_specialNeeds) & any(grepl('swing', inputs$swing))) {
         results <- result %>%
-            mutate(score_weighted =
-                score_weighted + score_votes * 10)
+            mutate(score_weighted = score_weighted + score_votes * 10)
     }
 
     # if barnaby box is checked, just return armidale
@@ -139,8 +154,8 @@ get_started <- function() {
                 "prefs_specialNeeds",
                 "Any special requirements?",
                 choices = c(
-                    "Good schools nearby 🎒" = "livingCost",
-                    "Easy access to childcare 👶" = "livingCost",
+                    "Good schools nearby 🎒" = "goodSchools",
+                    "Easy access to childcare 👶" = "childCare",
                     "Big swing last election 😈" = "swing",
                     "I'm Barnaby Joyce 🤠" = "barnaby")),
             # this button calls the algorithm to find a place: go_find_us
