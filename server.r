@@ -28,20 +28,25 @@ scores <-
 get_best_town <- function(inputs) {
     
     result <- scores %>%
-        mutate(score_weighted = score_internet * inputs$prefs_netConnectivity +
-            score_centreofaus * inputs$prefs_centreofaus) %>%
+        mutate(score_weighted =
+            (score_internet * inputs$prefs_netConnectivity) +
+            1 - abs(score_centreofaus - inputs$prefs_centreofaus)) %>%
         arrange(score_weighted)
+
+    print(head(result))
     
     location <- list(
-        "name" = result$UCL_NAME11,
-        "lat" = result$Y,
-        "lon" = result$X,
-        "score_internet" = result$score_internet,
-        "score_coast" = result$score_centreofaus,
-        "score_total" = result$score_total,
+        "name" = result$UCL_NAME11[1],
+        "lat" = result$Y[1],
+        "lon" = result$X[1],
+        "score_internet" = result$score_internet[1],
+        "score_coast" = result$score_centreofaus[1],
+        "score_total" = result$score_weighted[1],
         "reason" = "it's near the beach, stupid.",
         "description" = paste(
-            result$UCL_NAME11, "has lots of beaches and old people."))
+            result$UCL_NAME11[1], "has lots of beaches and old people."))
+    
+    print(location)
 
     return(location)
 }
@@ -64,11 +69,11 @@ get_started <- function() {
             sliderInput(
                 "prefs_netConnectivity",
                 "How important is Internet access?",
-                min = 0, max = 10, value = 5),
+                min = 0, max = 1, value = 0.5),
             sliderInput(
                 "prefs_centreofaus",
-                "How important is being close to the centre of Australia?",
-                min = 0, max = 10, value = 5),
+                "How close to the centre of Australia do you want to be?",
+                min = 0, max = 1, value = 0.5),
             checkboxGroupInput(
                 "prefs_specialNeeds",
                 "Special requirements?",
@@ -94,9 +99,10 @@ go_find_us <- function(inputs) {
         ui = absolutePanel(top = 140, right = 30, width = 340,
             id = "panel-destination", class = "panel-absolute panel-controls",
             h4("Welcome to", location$name),
-            p("We think ", location$name, " is ", location$score_total,
-              "% suitable for your department, because ",
-              location$reason),
+            p(paste0("We think ", location$name, ", with a score of ",
+                format(location$score_total * 100, digits = 2),
+                ", is suitable for your department, because ",
+                location$reason)),
             p(location$description),
             actionButton("backToSelector", "< Back"),
             actionButton("exploreData", "Explore Data")
