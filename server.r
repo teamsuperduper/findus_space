@@ -122,14 +122,14 @@ get_started <- function() {
                "),
             id = "panel-options", class = "panel-absolute panel-controls",
             h4("What's in a move?"),
-            p(class="text-muted", "Use the controls to tell us what matters to you."),
-            sliderInput(
-                "prefs_netConnectivity",
-                "How important is fast internet?",
-                min = 0, max = 1, value = 0.5, step = 0.25),
+            p(class="text-muted", "Tell us what matters to you."),
             sliderInput(
                 "prefs_coast",
                 "How close to the coast would you like to be?",
+                min = 0, max = 1, value = 0.5, step = 0.25),
+            sliderInput(
+                "prefs_netConnectivity",
+                "How important is fast internet?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
             sliderInput(
                 "prefs_lowRent",
@@ -200,15 +200,18 @@ go_find_us <- function(inputs) {
 # Show a popup at the given location
 show_town_popup <- function(id, lat, lng) {
     town <- scores[scores$UCL_CODE11 == id, ]
-    content <- as.character(tagList(
-        tags$h6(gsub(" \\(.*", "", town$UCL_NAME11[1])),
-        p("population: ", as.character(town$SSR_NAME11),
-          "electorate: ", town$Elect_div, br(),
-          "internet: ", town$score_internet, br(),
-          "coast: ", town$score_coast, br(),
-          "rent: ", town$score_rent, br(),
-          "votes: ", town$score_votes)
-        ))
+    table_data <- rbind(
+        c("population: ", as.character(town$SSR_NAME11)),
+        c("electorate: ", town$Elect_div),
+        c("internet: ", town$score_internet),
+        c("coast: ", town$score_coast),
+        c("rent: ", town$score_rent),
+        c("votes: ", town$score_votes)
+    )
+    content <- paste(  # pretty sure this is not the intended way to do this, but it works.
+        h6(gsub(" \\(.*", "", town$UCL_NAME11[1])),
+        as.character(renderTable(table_data, colnames = FALSE)())
+    )
     leafletProxy("map") %>% addPopups(lng, lat, content, layerId = 'popup')
 }
 
