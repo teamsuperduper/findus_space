@@ -31,6 +31,14 @@ scores <-
 
 get_best_town <- function(inputs) {
 
+    # calculate the weighted score
+    results <- scores %>%
+        mutate(score_weighted =
+            (score_internet * inputs$prefs_netConnectivity) +
+            (1 - abs(score_coast - inputs$prefs_coast)) +
+            (score_rent * inputs$prefs_lowRent) +
+            (score_votes * inputs$prefs_swing))
+
     if(
         !is.null(inputs$prefs_specialNeeds) &
         any(grepl('barnaby', inputs$prefs_specialNeeds)))
@@ -42,48 +50,41 @@ get_best_town <- function(inputs) {
         location <- list(
             "id" = armidale$UCL_NAME11[1],
             "name" = name,
+            "state" = armidale$STE_NAME11,
             "lat" = armidale$Y[1],
             "lon" = armidale$X[1],
             "score_internet" = armidale$score_internet[1],
             "score_coast" = armidale$score_coast[1],
             "score_rent" = armidale$score_rent[1],
             "score_votes" = armidale$score_votes[1],
-            "score_total" = 9000,
+            "score_total" = 999,
+            "population" = armidale$SSR_NAME11[1],
             "reason" = "you're Barnaby and it's Armidale.",
             "description" = paste(name, "is the future of Australia.",
-                "The only future.")
+                "The only future."))
 
-    } else
-    {
-        # otherwise, actually calculated the weighted score
-        results <- scores %>%
-            mutate(score_weighted =
-                (score_internet * inputs$prefs_netConnectivity) +
-                (1 - abs(score_coast - inputs$prefs_coast)) +
-                (score_rent * inputs$prefs_lowRent) +
-                (score_votes * inputs$prefs_swing) +
-            )
+    } else {
 
-     bestish_town <- results %>%
-        top_n(15, score_weighted) %>%   # grab top n scoring towns
-        arrange(-score_weighted) %>%
-        sample_n(1)                     # randomise the top result
+        bestish_town <- results %>%
+            top_n(15, score_weighted) %>%   # grab top n scoring towns
+            arrange(-score_weighted) %>%
+            sample_n(1)                     # randomise the top result
 
-    name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
-    state <- gsub(" \\(.*", "", bestish_town$STE_NAME11[1])
+        name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
 
-    location <- list(
-        "id" = bestish_town$UCL_NAME11[1],
-        "name" = name,
-        "state" = state,
-        "lat" = bestish_town$Y[1],
-        "lon" = bestish_town$X[1],
-        "score_internet" = bestish_town$score_internet[1],
-        "score_coast" = bestish_town$score_coast[1],
-        "score_rent" = bestish_town$score_rent[1],
-        "score_total" = bestish_town$score_weighted[1],
-        "reason" = "it most closely aligns to your requirements.",
-        "description" = paste(name, "is going to be a great fit! It's near the coast, has fast internet and reasonable house prices."))
+        location <- list(
+            "id" = bestish_town$UCL_NAME11[1],
+            "name" = name,
+            "state" = bestish_town$STE_NAME11,
+            "lat" = bestish_town$Y[1],
+            "lon" = bestish_town$X[1],
+            "score_internet" = bestish_town$score_internet[1],
+            "score_coast" = bestish_town$score_coast[1],
+            "score_rent" = bestish_town$score_rent[1],
+            "score_total" = bestish_town$score_weighted[1],
+            "population" = bestish_town$SSR_NAME11[1],
+            "reason" = "it most closely aligns to your requirements.",
+            "description" = paste(name, "is going to be a great fit! It's near the coast, has fast internet and reasonable house prices."))
     }
 
     return(list(location = location, all_scores = results$score_weighted))
@@ -181,7 +182,7 @@ go_find_us <- function(inputs) {
             h4("Welcome to", location$name),
             p(paste0("We've crunched all the data and think ", location$name, ", ", location$state, ", with a findus.space score of ",
                 format(location$score_total * 100, digits = 2),
-                " and a population of ", location$SSR_NAME11,
+                " and a population of ", location$population,
                 ", is suitable for your department, because ",
                 location$reason)),
             p(location$description),
