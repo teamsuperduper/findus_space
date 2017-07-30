@@ -75,8 +75,10 @@ process_coast = function()
   input = read_csv('gis-distance-coast.csv',
     col_types = cols(
       .default = col_integer(),
-      Distance = col_double())) %>%
-    select(InputID, Distance)
+      Distance = col_double()))
+  input$Distance = remap_scores(input$Distance,
+    from = 1, to = 0)
+  input = input %>% select(InputID, Distance)
   names(input) = c('UCL_CODE11', 'score_coast')
   write_csv(input, '../prefs-coast.csv')
 }
