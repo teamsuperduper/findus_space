@@ -193,6 +193,32 @@ go_find_us <- function(inputs) {
 }
 
 
+# Show a popup at the given location
+show_town_popup <- function(id, lat, lng) {
+    town <- scores[town_data$UCL_CODE11 == id, ]
+    content <- as.character(tagList(
+        tags$h6(gsub(" \\(.*", "", town$UCL_NAME11[1])),
+        p("population: ", as.character(town$SSR_NAME11),
+          "electorate: ", town$Elect_div, br(),
+          "internet: ", town$score_internet, br(),
+          "coast: ", town$score_coast, br(),
+          "rent: ", town$score_rent, br(),
+          "votes: ", town$score_votes)
+        ))
+    leafletProxy("map") %>% addPopups(lng, lat, content, layerId = 'popup')
+}
+
+check_map_click <- function(map_click) {
+    leafletProxy("map") %>% clearPopups()
+    event <- map_click
+    if (is.null(event))
+        return()
+
+    isolate({
+        show_town_popup(event$id, event$lat, event$lng)
+    })
+}
+
 # Create the map
 map <- renderLeaflet({
     leaflet("map") %>%
@@ -221,4 +247,6 @@ server <- function(input, output, session) {
     observeEvent(input$getStarted, get_started())
     observeEvent(input$devolveMe, go_find_us(input))
     observeEvent(input$backToSelector, get_started())
+
+    observe(check_map_click(input$map_marker_click))
 }
