@@ -20,9 +20,7 @@ scores <-
     # left_join(., read_csv('data/prefs-centreofaus.csv'),
     #     by = 'UCL_CODE11') %>%
     left_join(., read_csv('data/prefs-coast.csv'),
-        by = 'UCL_CODE11') %>%
-
-print(head(scores))
+        by = 'UCL_CODE11')
 
 
 ###############################
@@ -30,28 +28,35 @@ print(head(scores))
 ###############################
 
 get_best_town <- function(inputs) {
-    
+
     # calculated the weighted score
-    result <- scores %>%
+    results <- scores %>%
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
             # TODO - nearly everyone's coast score is 0.9–1; maybe dial it down?
             (1 - abs(score_coast - inputs$prefs_coast))
-            ) %>%
-        top_n(15, score_weighted) %>%    # grab top n scoring towns
+        )
+
+     bestish_town <- results %>%
+        top_n(15, score_weighted) %>%   # grab top n scoring towns
         arrange(-score_weighted) %>%
         sample_n(1)                     # randomise the top result
+
+    name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
+
     location <- list(
-        "name" = result$UCL_NAME11[1],
-        "lat" = result$Y[1],
-        "lon" = result$X[1],
-        "score_internet" = result$score_internet[1],
-        "score_coast" = result$score_coast[1],
-        "score_total" = result$score_weighted[1],
+        "id" = bestish_town$UCL_NAME11[1],
+        "name" = name,
+        "lat" = bestish_town$Y[1],
+        "lon" = bestish_town$X[1],
+        "score_internet" = bestish_town$score_internet[1],
+        "score_coast" = bestish_town$score_coast[1],
+        "score_total" = bestish_town$score_weighted[1],
         "reason" = "it's near the beach, stupid.",
-        "description" = paste(
-            result$UCL_NAME11[1], "has lots of beaches and old people."))
-    return(location)
+        "description" = paste(name, "has lots of beaches and old people.")
+    )
+
+    return(list(location = location, all_scores = results$score_weighted))
 }
 
 ###############################
@@ -97,8 +102,8 @@ get_started <- function() {
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
     results <- get_best_town(inputs)
-    location <- results[1]
-    all_scores <- results[2]
+    location <- results$location
+    all_scores <- results$all_scores
     leafletProxy('map') %>%
         setView(lat = location$lat, lng = location$lon, zoom = 12)
     insertUI(
