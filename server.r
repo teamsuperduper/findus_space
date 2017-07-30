@@ -64,7 +64,7 @@ get_started <- function() {
     insertUI(
         selector = "#author",
         where = "beforeBegin",
-        ui = absolutePanel(top = 140, right = 30, width = 340,
+        ui = absolutePanel(
             id = "panel-options", class = "panel-absolute panel-controls",
             h4("What's in a move?"),
             p("Use the controls to select what matters to you."),
@@ -96,13 +96,15 @@ get_started <- function() {
 # and we move the move to it and update the pane with some info.
 go_find_us <- function(inputs) {
     removeUI(selector = ".panel-controls")
-    location <- get_best_town(inputs)
+    results <- get_best_town(inputs)
+    location <- results[1]
+    all_scores <- results[2]
     leafletProxy('map') %>%
         setView(lat = location$lat, lng = location$lon, zoom = 12)
     insertUI(
         selector = "#author",
         where = "beforeBegin",
-        ui = absolutePanel(top = 140, right = 30, width = 340,
+        ui = absolutePanel(
             id = "panel-destination", class = "panel-absolute panel-controls",
             h4("Welcome to", location$name),
             p(paste0("We think ", location$name, ", with a score of ",
