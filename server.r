@@ -15,12 +15,12 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
                                levels = rev(unique(town_data$SSR_NAME11))  # Not sure why this works, but it does...
                                )
 scores <-
-    left_join(town_data, read_csv('data/prefs-internet.csv'),
-        by = 'UCL_CODE11') %>%
-    # left_join(., read_csv('data/prefs-centreofaus.csv'),
-    #     by = 'UCL_CODE11') %>%
-    left_join(., read_csv('data/prefs-coast.csv'),
-        by = 'UCL_CODE11')
+    left_join(town_data, read_csv("data/prefs-internet.csv"),
+        by = "UCL_CODE11") %>%
+    # left_join(., read_csv("data/prefs-centreofaus.csv"),
+    #     by = "UCL_CODE11") %>%
+    left_join(., read_csv("data/prefs-coast.csv"),
+        by = "UCL_CODE11")
 
 
 ###############################
@@ -116,8 +116,7 @@ update_map <- function(location, all_scores) {
     map_proxy %>% setView(lat = location$lat, lng = location$lon, zoom = 12)
 
     palette <- colorNumeric(palette = c("#544412", "#ffcd36"),
-                            domain = range(all_scores, na.rm=TRUE))
-                            print(range(all_scores, na.rm=TRUE))
+                            domain = range(all_scores, na.rm = TRUE))
 
     map_proxy %>% addCircleMarkers(
         lng = town_data$X, lat = town_data$Y,
@@ -181,9 +180,9 @@ map <- renderLeaflet({
 # ui is in ui.R
 
 server <- function(input, output, session) {
-  output$map <- map
+    output$map <- map
 
-  observeEvent(input$getStarted, get_started())
-  observeEvent(input$devolveMe, go_find_us(input))
-  observeEvent(input$backToSelector, get_started())
+    observeEvent(input$getStarted, get_started())
+    observeEvent(input$devolveMe, go_find_us(input))
+    observeEvent(input$backToSelector, get_started())
 }
