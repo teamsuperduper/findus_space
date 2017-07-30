@@ -35,6 +35,7 @@ get_best_town <- function(inputs) {
     result <- scores %>%
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
+            # TODO - nearly everyone's coast score is 0.9–1; maybe dial it down?
             (1 - abs(score_coast - inputs$prefs_coast))
             ) %>%
         top_n(15, score_weighted) %>%    # grab top n scoring towns
@@ -77,7 +78,7 @@ get_started <- function() {
             #     min = 0, max = 1, value = 0.5),
             sliderInput(
                 "prefs_coast",
-                "How important are beach views? 🏖",
+                "How close to the beach would you like to be? 🏖",
                 min = 0, max = 1, value = 0.5),
             checkboxGroupInput(
                 "prefs_specialNeeds",
