@@ -16,7 +16,9 @@ ui <- fluidPage(
   theme = "bootstrap.css",
   tags$head(
             tags$title("findus.space > relocate your life #govhack 2017"),
-            tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+            tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
+            tags$link(rel="shortcut icon", href="favicon.ico", type="image/x-icon"),
+            tags$link(rel="icon", href="favicon.ico", type="image/x-icon")
             ),
   mainPanel(width = 12, style = "padding-left: 0;",
     img(src = "img/logo_BW_long_w.svg", class = "img-fluid float-left", style = "max-width: 90%;")
