@@ -154,9 +154,9 @@ update_map <- function(location, all_scores) {
                             domain = range(all_scores, na.rm = TRUE))
 
     map_proxy %>% addCircleMarkers(
-        lng = town_data$X, lat = town_data$Y,
-        layerId = town_data$UCL_CODE11,
-        radius = as.integer(town_data$SSR_NAME11) + 2,
+        lng = scores$X, lat = scores$Y,
+        layerId = scores$UCL_CODE11,
+        radius = as.integer(scores$SSR_NAME11) + 2,
         color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
         fillColor = palette(all_scores))
 }
@@ -195,7 +195,7 @@ go_find_us <- function(inputs) {
 
 # Show a popup at the given location
 show_town_popup <- function(id, lat, lng) {
-    town <- scores[town_data$UCL_CODE11 == id, ]
+    town <- scores[scores$UCL_CODE11 == id, ]
     content <- as.character(tagList(
         tags$h6(gsub(" \\(.*", "", town$UCL_NAME11[1])),
         p("population: ", as.character(town$SSR_NAME11),
@@ -228,9 +228,9 @@ map <- renderLeaflet({
             ) %>%
         setView(lng = 149.1300, lat = -35.2809, zoom = 11) %>%
         addCircleMarkers(
-            lng = town_data$X, lat = town_data$Y,
-            layerId = town_data$UCL_CODE11,
-            radius = as.integer(town_data$SSR_NAME11) + 2,
+            lng = scores$X, lat = scores$Y,
+            layerId = scores$UCL_CODE11,
+            radius = as.integer(scores$SSR_NAME11) + 2,
             color = "#000", weight = 0.5, opacity = 0.7, fillOpacity = 0.7,
             fillColor = "#f2c94c"
         )
