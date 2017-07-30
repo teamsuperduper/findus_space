@@ -30,7 +30,7 @@ print(head(scores))
 ###############################
 
 get_best_town <- function(inputs) {
-    
+
     # calculated the weighted score
     result <- scores %>%
         mutate(score_weighted =
@@ -65,32 +65,45 @@ get_started <- function() {
         selector = "#author",
         where = "beforeBegin",
         ui = absolutePanel(
+               tags$style(type = "text/css", "
+                 .irs-bar {width: 100%; height: 25px; background: black; border-top: 1px solid black; border-bottom: 1px solid black;}
+                 .irs-bar-edge {background: black; border: 1px solid black; height: 25px; border-radius: 0px; width: 20px;}
+                 .irs-line {border: 1px solid black; height: 25px; border-radius: 0px;}
+                 .irs-grid-text {font-family: color: white; bottom: 17px; z-index: 1;}
+                 .irs-grid-pol {display: none;}
+                 .irs-max {font-family: 'arial'; color: black;}
+                 .irs-min {font-family: 'arial'; color: black;}
+                 .irs-single {color:black; background:#F2C94C;}
+                 .irs-slider {width: 30px; height: 30px; top: 22px;}
+               "),
             id = "panel-options", class = "panel-absolute panel-controls",
             h4("What's in a move?"),
-            p("Use the controls to select what matters to you."),
+            p(class="text-muted", "Use the controls to tell us what matters to you."),
             sliderInput(
                 "prefs_netConnectivity",
                 "How important is Internet access?",
-                min = 0, max = 1, value = 0.5),
+                min = 0, max = 1, value = 0.5, step = 0.25),
             # sliderInput(
             #     "prefs_centreofaus",
             #     "How close to the centre of Australia do you want to be?",
             #     min = 0, max = 1, value = 0.5),
             sliderInput(
                 "prefs_coast",
-                "How close to the beach would you like to be? 🏖",
-                min = 0, max = 1, value = 0.5),
+                "How close to the coast would you like to be?",
+                min = 0, max = 1, value = 0.5, step = 0.25),
             checkboxGroupInput(
                 "prefs_specialNeeds",
-                "Special requirements?",
+                "Any special requirements?",
                 choices = c(
-                    "Low cost of living" = "livingCost")),
+                    "Low cost of living 🏡️" = "livingCost",
+                    "Easy access to childcare 👶" = "livingCost",
+                    "Good schools nearby 🎒" = "livingCost",
+                    "I'm Barnaby Joyce 🤠" = "livingCost")),
             # this button calls the algorithm to find a place: go_find_us
-            actionButton("devolveMe", "Devolve Me!")
+            actionButton("devolveMe", "Relocate Me!")
         )
     )
 }
-
 
 # pass selected preferences to the algorithm. it returns a selected town,
 # and we move the move to it and update the pane with some info.
