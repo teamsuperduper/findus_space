@@ -69,3 +69,14 @@ process_centreofaus = function()
   result = input %>% select(UCL_CODE11, score_centreofaus)
   write_csv(result, '../prefs-centreofaus.csv')
 }
+
+process_coast = function()
+{
+  input = read_csv('gis-distance-coast.csv',
+    col_types = cols(
+      .default = col_integer(),
+      Distance = col_double())) %>%
+    select(InputID, Distance)
+  names(input) = c('UCL_CODE11', 'score_coast')
+  write_csv(input, '../prefs-coast.csv')
+}

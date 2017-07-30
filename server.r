@@ -17,8 +17,12 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 scores <-
     left_join(town_data, read_csv('data/prefs-internet.csv'),
         by = 'UCL_CODE11') %>%
-    left_join(., read_csv('data/prefs-centreofaus.csv'),
-        by = 'UCL_CODE11')
+    # left_join(., read_csv('data/prefs-centreofaus.csv'),
+    #     by = 'UCL_CODE11') %>%
+    left_join(., read_csv('data/prefs-coast.csv'),
+        by = 'UCL_CODE11') %>%
+
+print(head(scores))
 
 
 ###############################
@@ -30,7 +34,9 @@ get_best_town <- function(inputs) {
     result <- scores %>%
         mutate(score_weighted =
             (score_internet * inputs$prefs_netConnectivity) +
-            1 - abs(score_centreofaus - inputs$prefs_centreofaus)) %>%
+            # (1 - abs(score_centreofaus - inputs$prefs_centreofaus)) +
+            (score_coast * inputs$prefs_coast)
+            ) %>%
         arrange(score_weighted)
 
     print(head(result))
@@ -70,9 +76,13 @@ get_started <- function() {
                 "prefs_netConnectivity",
                 "How important is Internet access?",
                 min = 0, max = 1, value = 0.5),
+            # sliderInput(
+            #     "prefs_centreofaus",
+            #     "How close to the centre of Australia do you want to be?",
+            #     min = 0, max = 1, value = 0.5),
             sliderInput(
-                "prefs_centreofaus",
-                "How close to the centre of Australia do you want to be?",
+                "prefs_coast",
+                "How important are beach views? 🏖",
                 min = 0, max = 1, value = 0.5),
             checkboxGroupInput(
                 "prefs_specialNeeds",
