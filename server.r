@@ -15,61 +15,83 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
                                levels = rev(unique(town_data$SSR_NAME11))  # Not sure why this works, but it does...
                                )
 scores <-
-    left_join(town_data, read_csv("data/prefs-internet.csv"),
-        by = "UCL_CODE11") %>%
-    left_join(., read_csv("data/prefs-coast.csv"),
-        by = "UCL_CODE11") %>%
-    left_join(., read_csv("data/prefs-rent.csv"),
-        by = "UCL_CODE11") %>%
-    left_join(., read_csv("data/prefs-votes.csv"),
-        by = "UCL_CODE11")
+    left_join(town_data, read_csv("data/prefs-internet.csv"), by = "UCL_CODE11") %>%
+    left_join(., read_csv("data/prefs-coast.csv"), by = "UCL_CODE11") %>%
+    left_join(., read_csv("data/prefs-rent.csv"), by = "UCL_CODE11") %>%
+    left_join(., read_csv("data/prefs-votes.csv"), by = "UCL_CODE11")
 
 
 ###############################
 # ALGORITHMIC FUNCTIONS
 ###############################
 
+town_row_to_list <- function(row) {
+    name <- gsub(" \\(.*", "", row$UCL_NAME11[1])
+
+    location <- list(
+        "id" = row$UCL_NAME11[1],
+        "name" = name,
+        "state" = row$STE_NAME11,
+        "lat" = row$Y[1],
+        "lon" = row$X[1],
+        "score_internet" = row$score_internet[1],
+        "score_coast" = row$score_coast[1],
+        "score_rent" = row$score_rent[1],
+        "score_total" = row$score_weighted[1],
+        "population" = row$SSR_NAME11[1],
+        "reason" = "it most closely aligns to your requirements.",
+        "description" = paste(name, "is going to be a great fit!"))
+
+}
+
 get_best_town <- function(inputs) {
 
-    # calculate the weighted score
+    weights <- c("net" = inputs$prefs_netConnectivity,
+                 "coast" = inputs$prefs_coast,
+                 "rent" = inputs$prefs_lowRent)
+
+    in_special <- inputs$prefs_specialNeeds
+    if (is.null(in_special)) { in_special <- c() }
+    # if (!is.null(in_special)) {
+    #     # Add 1 for check boxes, except Barnaby
+    #     specialNeeds <- c("goodSchools", "childCare")
+    #     for (sn in specialNeeds) {
+    #         if (sn %in% in_special) {
+    #             weights[sn] <- 1
+    #         }
+    #     }
+    # }
+
+    # normalise weights
+    weights <- weights / sum (weights)
+
     results <- scores %>%
         mutate(score_weighted =
-            (score_internet * inputs$prefs_netConnectivity) +
-            (1 - abs(score_coast - inputs$prefs_coast)) +
-            (score_rent * inputs$prefs_lowRent))
+            (score_internet * weights["net"]) +
+            (score_coast * weights["coast"]) +
+            (score_rent * weights["rent"])
+        )
+    # TODO: Add in weights for schools/childcare? values, somehow?
 
     # bump score with swing amount if swing checkbox is checked
-    if (!is.null(inputs$prefs_specialNeeds) &
-        any(grepl('barnaby', inputs$swing)))
-    {
-        results <- result %>%
-            mutate(score_weighted =
-                score_weighted + score_votes * 10)
+    if ("swing" %in% in_special) {
+        results <- results  %>%
+            mutate(score_weighted = 0.5 * score_weighted + 0.5 * score_votes)
     }
 
     # if barnaby box is checked, just return armidale
-    if(
-        !is.null(inputs$prefs_specialNeeds) &
-        any(grepl('barnaby', inputs$prefs_specialNeeds)))
-    {
-        armidale = scores %>% filter(UCL_NAME11 == 'Armidale')
-        name <- gsub(" \\(.*", "", armidale$UCL_NAME11[1])
+    if ("barnaby" %in% in_special) {
 
-        location <- list(
-            "id" = armidale$UCL_NAME11[1],
-            "name" = name,
-            "state" = armidale$STE_NAME11,
-            "lat" = armidale$Y[1],
-            "lon" = armidale$X[1],
-            "score_internet" = armidale$score_internet[1],
-            "score_coast" = armidale$score_coast[1],
-            "score_rent" = armidale$score_rent[1],
-            "score_votes" = armidale$score_votes[1],
-            "score_total" = 999,
-            "population" = armidale$SSR_NAME11[1],
-            "reason" = "you're Barnaby and it's Armidale.",
-            "description" = paste(name, "is the future of Australia.",
-                "The only future."))
+        armidale <- scores %>% filter(UCL_NAME11 == "Armidale")
+
+        location <- town_row_to_list(armidale)
+        location["score_total"] <- 999
+        location["reason"] <- "you're Barnaby and it's Armidale."
+        location["description"] <- paste("Armidale is the future of Australia.",
+                "The only future.")
+
+        all_scores <- results$score_weighted * 0.5
+        all_scores[results$UCL_NAME11 == "Armidale"] <- 1
 
     } else {
 
@@ -78,24 +100,11 @@ get_best_town <- function(inputs) {
             arrange(-score_weighted) %>%
             sample_n(1)                     # randomise the top result
 
-        name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
-
-        location <- list(
-            "id" = bestish_town$UCL_NAME11[1],
-            "name" = name,
-            "state" = bestish_town$STE_NAME11,
-            "lat" = bestish_town$Y[1],
-            "lon" = bestish_town$X[1],
-            "score_internet" = bestish_town$score_internet[1],
-            "score_coast" = bestish_town$score_coast[1],
-            "score_rent" = bestish_town$score_rent[1],
-            "score_total" = bestish_town$score_weighted[1],
-            "population" = bestish_town$SSR_NAME11[1],
-            "reason" = "it most closely aligns to your requirements.",
-            "description" = paste(name, "is going to be a great fit!"))
+        location <- town_row_to_list(bestish_town)
+        all_scores <- results$score_weighted
     }
 
-    return(list(location = location, all_scores = results$score_weighted))
+    return(list(location = location, all_scores = all_scores))
 }
 
 ###############################
@@ -139,8 +148,8 @@ get_started <- function() {
                 "prefs_specialNeeds",
                 "Any special requirements?",
                 choices = c(
-                    "Good schools nearby 🎒" = "livingCost",
-                    "Easy access to childcare 👶" = "livingCost",
+                    "Good schools nearby 🎒" = "goodSchools",
+                    "Easy access to childcare 👶" = "childCare",
                     "Big swing last election 😈" = "swing",
                     "I'm Barnaby Joyce 🤠" = "barnaby")),
             # this button calls the algorithm to find a place: go_find_us
