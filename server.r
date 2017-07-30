@@ -17,7 +17,7 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 scores <-
     left_join(town_data, read_csv("data/prefs-internet.csv"),
         by = "UCL_CODE11") %>%
-    left_join(town_data, read_csv("data/prefs-rent.csv"),
+    left_join(., read_csv("data/prefs-rent.csv"),
             by = "UCL_CODE11") %>%
     # left_join(., read_csv("data/prefs-centreofaus.csv"),
     #     by = "UCL_CODE11") %>%
