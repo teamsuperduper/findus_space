@@ -17,9 +17,11 @@ town_data$SSR_NAME11 <- factor(town_data$SSR_NAME11,
 scores <-
     left_join(town_data, read_csv("data/prefs-internet.csv"),
         by = "UCL_CODE11") %>%
-    # left_join(., read_csv("data/prefs-centreofaus.csv"),
-    #     by = "UCL_CODE11") %>%
     left_join(., read_csv("data/prefs-coast.csv"),
+        by = "UCL_CODE11") %>%
+    left_join(., read_csv("data/prefs-rent.csv"),
+        by = "UCL_CODE11") %>%
+    left_join(., read_csv("data/prefs-votes.csv"),
         by = "UCL_CODE11")
 
 
@@ -29,34 +31,62 @@ scores <-
 
 get_best_town <- function(inputs) {
 
-    # calculated the weighted score
-    results <- scores %>%
-        mutate(score_weighted =
-            (score_internet * inputs$prefs_netConnectivity) +
-            # TODO - nearly everyone's coast score is 0.9–1; maybe dial it down?
-            (1 - abs(score_coast - inputs$prefs_coast))
+    if(
+        !is.null(inputs$prefs_specialNeeds) &
+        any(grepl('barnaby', inputs$prefs_specialNeeds)))
+    {
+        # if barnaby box is checked, just return armidale
+        armidale = scores %>% filter(UCL_NAME11 == 'Armidale')
+        name <- gsub(" \\(.*", "", armidale$UCL_NAME11[1])
+
+        location <- list(
+            "id" = armidale$UCL_NAME11[1],
+            "name" = name,
+            "lat" = armidale$Y[1],
+            "lon" = armidale$X[1],
+            "score_internet" = armidale$score_internet[1],
+            "score_coast" = armidale$score_coast[1],
+            "score_rent" = armidale$score_rent[1],
+            "score_votes" = armidale$score_votes[1],
+            "score_total" = 9000,
+            "reason" = "you're Barnaby and it's Armidale.",
+            "description" = paste(name, "is the future of Australia.",
+                "The only future.")
+
+    } else
+    {
+        # otherwise, actually calculated the weighted score
+        results <- scores %>%
+            mutate(score_weighted =
+                (score_internet * inputs$prefs_netConnectivity) +
+                (1 - abs(score_coast - inputs$prefs_coast)) +
+                (score_rent * inputs$prefs_lowRent) +
+                (score_votes * inputs$prefs_swing) +
+            )
+
+        bestish_town <- results %>%
+            top_n(15, score_weighted) %>%   # grab top n scoring towns
+            arrange(-score_weighted) %>%
+            sample_n(1)                     # randomise the top result
+
+        name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
+
+        location <- list(
+            "id" = bestish_town$UCL_NAME11[1],
+            "name" = name,
+            "lat" = bestish_town$Y[1],
+            "lon" = bestish_town$X[1],
+            "score_internet" = bestish_town$score_internet[1],
+            "score_coast" = bestish_town$score_coast[1],
+            "score_rent" = bestish_town$score_rent[1],
+            "score_votes" = bestish_town$score_votes[1],
+            "score_total" = bestish_town$score_weighted[1],
+            "reason" = "it's near the beach, stupid.",
+            "description" = paste(name, "has lots of beaches and old people.")
         )
 
-     bestish_town <- results %>%
-        top_n(15, score_weighted) %>%   # grab top n scoring towns
-        arrange(-score_weighted) %>%
-        sample_n(1)                     # randomise the top result
-
-    name <- gsub(" \\(.*", "", bestish_town$UCL_NAME11[1])
-
-    location <- list(
-        "id" = bestish_town$UCL_NAME11[1],
-        "name" = name,
-        "lat" = bestish_town$Y[1],
-        "lon" = bestish_town$X[1],
-        "score_internet" = bestish_town$score_internet[1],
-        "score_coast" = bestish_town$score_coast[1],
-        "score_total" = bestish_town$score_weighted[1],
-        "reason" = "it's near the beach, stupid.",
-        "description" = paste(name, "has lots of beaches and old people.")
-    )
-
-    return(list(location = location, all_scores = results$score_weighted))
+        return(list(location = location, all_scores = results$score_weighted))
+    }
 }
 
 ###############################
@@ -88,22 +118,26 @@ get_started <- function() {
                 "prefs_netConnectivity",
                 "How important is Internet access?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
-            # sliderInput(
-            #     "prefs_centreofaus",
-            #     "How close to the centre of Australia do you want to be?",
-            #     min = 0, max = 1, value = 0.5),
             sliderInput(
                 "prefs_coast",
                 "How close to the coast would you like to be?",
+                min = 0, max = 1, value = 0.5, step = 0.25),
+            sliderInput(
+                "prefs_lowRent",
+                "How important is low rent to you?",
+                min = 0, max = 1, value = 0.5, step = 0.25),
+            sliderInput(
+                "prefs_swing",
+                "How important is a large swing last election?",
                 min = 0, max = 1, value = 0.5, step = 0.25),
             checkboxGroupInput(
                 "prefs_specialNeeds",
                 "Any special requirements?",
                 choices = c(
                     "Low cost of living 🏡️" = "livingCost",
-                    "Easy access to childcare 👶" = "livingCost",
-                    "Good schools nearby 🎒" = "livingCost",
-                    "I'm Barnaby Joyce 🤠" = "livingCost")),
+                    "Easy access to childcare 👶" = "childcare",
+                    "Good schools nearby 🎒" = "schools",
+                    "I'm Barnaby Joyce 🤠" = "barnaby")),
             # this button calls the algorithm to find a place: go_find_us
             actionButton("devolveMe", "Relocate Me!")
         )
@@ -147,6 +181,7 @@ go_find_us <- function(inputs) {
             h4("Welcome to", location$name),
             p(paste0("We think ", location$name, ", with a score of ",
                 format(location$score_total * 100, digits = 2),
+                " and a population of ", location$SSR_NAME11,
                 ", is suitable for your department, because ",
                 location$reason)),
             p(location$description),
